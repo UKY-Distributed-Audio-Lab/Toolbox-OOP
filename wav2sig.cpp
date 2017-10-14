@@ -34,6 +34,8 @@ typedef struct WAV_HEADER {
     /* "data" sub-chunk */
     uint8_t         Subchunk2ID[4]; // "data"  string
     uint32_t        Subchunk2Size;  // Sampled data length
+
+    double *        data;
 } wav_header;
 
 
@@ -51,7 +53,6 @@ int getFileSize(FILE * inFile) {
      fseek(inFile, 0, SEEK_SET);
      return filesize;
 }
-
 
 
 
@@ -93,34 +94,43 @@ void outputFileData(wav_header & wavHeader, FILE * wavFile, int numSamples) {
 
 
 
-/*******************************************************************************
-Function: Main
-Purpose: Driver of wav2sig.cpp
-@param: TODO
-@return: integer exit status
+/*
+Example Call:
+std::string paths[3] = {"/media/x/WINDOWSHDD3/Git/Array-Toolbox/man1.wav",
+                         "/media/x/WINDOWSHDD3/Git/Array-Toolbox/man2.wav",
+                         "/media/x/WINDOWSHDD3/Git/Array-Toolbox/man3.wav"};
+
+double **data = new double*[3]; //allocate 2d array for data
+int num_samples[3];             //keep track of number of samples for each
+
+//get data from wav2sig
+for(int i = 0; i < 3; i++)  data[i] = wav2sig(paths[i], num_samples[i]);
 */
-int main(int argc, char* argv[]) {
-     std::cout << "Attempting to open " << argv[1] << "..." << std::endl;
+double* wav2sig(std::string filepath, int & num_samples) {
      wav_header wavHeader;
      int headerSize = sizeof(wav_header);
-
-     const char* filepath = argv[1];
+     double * data = nullptr;
 
      //attempt to open the wavefile provided by the caller
-     FILE * wavFile = fopen(filepath,"r");
+     FILE * wavFile = fopen(filepath.c_str(),"r");
      if (wavFile == nullptr) {
-          std::cerr << "Unable to open file " << argv[1] << std::endl;
-          return 1;
+          std::cerr << "ERROR: Unable to open file " << filepath << std::endl;
+          return data;
      }
 
      //read in the wave file by the header
      size_t bytesRead = fread(&wavHeader,1, headerSize,wavFile);
-     std::cout << "Header read " << bytesRead << " bytes." << std::endl;
 
      //check for empty file
      if (bytesRead <= 0) {
-          std::cerr << "Empty wav file. Exiting..." << std::endl;
-          return 1;
+          std::cerr << "ERROR: Empty wav file. Exiting..." << std::endl;
+          return data;
+     }
+
+     if (wavHeader.NumOfChan > 1) {
+          std::cerr << "ERROR: wav2sig only accepts mono (1 channel) signals"
+               << std::endl;
+          return data;
      }
 
      //read the data
@@ -129,13 +139,14 @@ int main(int argc, char* argv[]) {
      static const uint16_t BUFFER_SIZE = 4096;
      int8_t * buffer = new int8_t[BUFFER_SIZE];
 
-
-     double data[numSamples]; //array for sample amplitude
+     data = new double[numSamples];
      int sampleCounter = 0;   //counter for array indexing (sampling)
-     while ( (bytesRead = fread(buffer, sizeof buffer[0], BUFFER_SIZE / (sizeof buffer[0]) , wavFile) ) > 0) {
-          std::cout << "Read\r";
+     while ( (bytesRead = fread(buffer, sizeof buffer[0],
+                              BUFFER_SIZE / (sizeof buffer[0]) , wavFile) ) > 0) {
 
           //increment over bytes read into the buffer
+          //TODO For some reason, this algorithm loses the first 5-6 samples of
+          //TODO the file.
           for(unsigned int i = 0; i < bytesRead; i+=2) { // bytesRead = 256 (frame size)
                int c = buffer[i+1] << 8 | buffer[i]; //combine 2 bytes into 16 bit sample size
                double d = c / 32768.0;               //convert to double floating point
@@ -143,14 +154,42 @@ int main(int argc, char* argv[]) {
                sampleCounter++;                      //increment counter
           }
      }
-     std::cout << "\nNumber of samples: " << sampleCounter << std::endl;
+     num_samples = sampleCounter;
+
 
      delete [] buffer; buffer = nullptr; //remove buffer
+     //delete[] filepath; filepath = nullptr;
 
-     outputFileData(wavHeader,wavFile, numSamples);    //report data to command line
+     //outputFileData(wavHeader,wavFile, numSamples);    //report data to command line
 
-
-     std::cout << "exiting..." << std::endl;
      fclose(wavFile);
+     return data;
+}
+
+
+//driver to test the functionality of multiple arrays
+int main(int argc, char* argv[]) {
+     std::string paths[3] = {"/media/x/WINDOWSHDD3/Git/Array-Toolbox/man1.wav",
+                              "/media/x/WINDOWSHDD3/Git/Array-Toolbox/man2.wav",
+                              "/media/x/WINDOWSHDD3/Git/Array-Toolbox/man3.wav"};
+
+     double **data = new double*[3]; //allocate 2d array for data
+     int num_samples[3];             //keep track of number of samples for each
+
+     //get data from wav2sig
+     for(int i = 0; i < 3; i++) {
+          data[i] = wav2sig(paths[i], num_samples[i]);
+          for(int j = 0; j < 10; j++) //test import by printing 10 samples
+               std::cout << data[i][j] << " ";
+          std::cout << std::endl << std::endl;;
+     }
+
+     for(int i = 0; i < 3; i++) {  //free memory
+          delete[] data[i];
+          std::cout << num_samples[i] << std::endl;
+     }
+     delete[] data;      //free
+
+     std::cout << "\n\nexiting\n";
      return 0;
 }
