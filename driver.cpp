@@ -11,6 +11,8 @@ int main(int argc, char* argv[]) {
      Wav2sig testsigs(tests);
 
      std::cout << "got the signals" << std::endl;
-     testsigs.printsigs();
+
+     testsigs.resample(1,25000);
+
      return 0;
 }
