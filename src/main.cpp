@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "../include/wav2sig.hpp"
+#include "../include/AudioFile.h"
 
 
 int main(int argc, char* argv[]) {
@@ -9,15 +10,16 @@ int main(int argc, char* argv[]) {
                               "../man2.wav",
                               "../man3.wav"};
 
-     wav2sig testsigs(tests);
-     for(int i = 0; i < 3; i++) {
-          std::cout << i << std::endl;
-          for (int j = 0; j < 10; j++)
-               std::cout << testsigs.filedata[i][j] << "\t";
-          std::cout << std::endl;
-     }
+     
+     int fs = 16000;
+     std::vector<float> tInt = {1.5,2};
+     std::vector<float> weights = { 1 , 1 , 1 };
+     
+     wav2sig testsigs(fs, tInt, weights, tests);
 
-     std::cout << "got the signals" << std::endl;
-     std::cout << "testing1" << std::endl;
+     // for(int i = 0; i < 3; i++) {
+     //      AudioFile<double> out;
+     // 
+     // }
      return 0;
 }

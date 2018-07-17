@@ -4,16 +4,16 @@ DEPS=main.o AudioFile.o wav2sig.o
 all: driver
 
 driver:  $(DEPS)
-	g++ $(FLAGS) -o $@ main.o AudioFile.o wav2sig.o
+	g++ $(FLAGS) -g -o $@ main.o AudioFile.o wav2sig.o
 
 main.o: main.cpp
-	g++ $(FLAGS) -c $^
+	g++ $(FLAGS) -c -g $^
 
 AudioFile.o: AudioFile.cpp
-	g++ $(FLAGS) -c $^
+	g++ $(FLAGS) -c -g $^
 
 wav2sig.o: wav2sig.cpp
-	g++ $(FLAGS) -c $^
+	g++ $(FLAGS) -c -g $^
 
 .PHONY: clean
 
