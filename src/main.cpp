@@ -1,25 +1,35 @@
 #include <iostream>
 #include <string>
 #include "../include/wav2sig.hpp"
-#include "../include/AudioFile.h"
 
 
 int main(int argc, char* argv[]) {
-     std::vector<std::string> tests =
-                              {"../man1.wav",
-                              "../man2.wav",
-                              "../man3.wav"};
+    std::vector<std::string> tests =
+                            {"../man1.wav",
+                            "../man2.wav",
+                            "../man3.wav"};
 
-     
-     int fs = 16000;
-     std::vector<float> tInt = {1.5,2};
-     std::vector<float> weights = { 1 , 1 , 1 };
-     
-     wav2sig testsigs(fs, tInt, weights, tests);
+    
+    int fs = 18000;
+    std::vector<float> tInt = {1.5,2};
+    std::vector<float> weights = { 1 , 1 , 1 };
+    
+    //-----------------------------Test only supplying filenames-------------------------
+    wav2sig testsigs(fs, tInt, weights, tests);
+    for(int i = 100000; i < 100010; i++) 
+        printf("data from sample 100000 to 100010 matrix 1 %f\t%f\t%f\n\r",
+            testsigs.filedata(i,0),testsigs.filedata(i,1),testsigs.filedata(i,2));
+    
+    printf("rows in matrix 1: %d\n\r", testsigs.filedata.col(0).n_rows);
 
-     // for(int i = 0; i < 3; i++) {
-     //      AudioFile<double> out;
-     // 
-     // }
-     return 0;
+    printf("\n\n\r");
+
+    //---------------------------Test supplying fnames and fs----------------------------
+    wav2sig testsigs2(tests, fs);
+    for(int i = 100000; i < 100010; i++)
+        printf("data from sample 100000 to 100010 matrix 2 %f\t%f\t%f\n\r", 
+            testsigs2.filedata(i,0),testsigs2.filedata(i,1),testsigs2.filedata(i,2));
+    
+    printf("rows in matrix 2: %d\n\r", testsigs2.filedata.col(0).n_rows);
+    return 0;
 }

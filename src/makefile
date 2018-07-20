@@ -4,7 +4,7 @@ DEPS=main.o AudioFile.o wav2sig.o
 all: driver
 
 driver:  $(DEPS)
-	g++ $(FLAGS) -g -o $@ main.o AudioFile.o wav2sig.o
+	g++ $(FLAGS) -o $@ main.o AudioFile.o wav2sig.o
 
 main.o: main.cpp
 	g++ $(FLAGS) -c -g $^
