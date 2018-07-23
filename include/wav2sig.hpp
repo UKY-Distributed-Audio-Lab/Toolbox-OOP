@@ -49,6 +49,7 @@ public:
             std::vector<float> weights);
 
     void read();
+    void write();
 };
 
 #endif

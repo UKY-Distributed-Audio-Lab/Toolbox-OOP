@@ -74,7 +74,7 @@ void wav2sig::read() {
         fdata[count].load(*i);   //load the audio samples into the vector index
 
         cout << "Loaded " << *i << ", summary:\n\r";
-        fdata[count].printSummary();
+        //fdata[count].printSummary();
 
         samples_per_channel.push_back(fdata[count].getNumSamplesPerChannel());
         channel_fs.push_back(fdata[count].getSampleRate());
@@ -183,4 +183,24 @@ void wav2sig::resize_filedata(std::vector<Col<double>> & newData) {
     
     //put the data back
     for(int i = 0; i < num_files; i++)  filedata.col(i) = newData[i];
+}
+
+void wav2sig::write() {
+    //iterate over each file
+    for(uint8_t i = 0; i < fnames.size(); i++) {
+        //initialize audiofile with one channel, right number of samples, fs
+        AudioFile<double> fileOut;
+        fileOut.setAudioBufferSize(1, filedata.col(i).n_rows);
+        fileOut.setSampleRate(channel_fs[i]);
+        
+        //iterate over all samples in the file
+        for(int j = 0; j < filedata.col(i).n_rows; j++)
+            fileOut.samples[0][j] = filedata(j,i);
+
+        fileOut.printSummary();
+        
+        string path = "./out" + to_string(i) + ".wav";
+        fileOut.save(path);
+    }
+    printf("Wrote all files\n\r");
 }
