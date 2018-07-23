@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <algorithm>
-#include "../libs/armadillo"
-#include "../include/AudioFile.h"
-#include "../libs/sigpack/sigpack.h"
+#include "armadillo"
+#include "AudioFile.h"
+#include "sigpack.h"
 
 using namespace arma;
 

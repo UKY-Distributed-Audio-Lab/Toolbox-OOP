@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "../include/wav2sig.hpp"
+#include "wav2sig.hpp"
 
 
 int main(int argc, char* argv[]) {
@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
                             "../man3.wav"};
 
     
-    int fs = 18000;
+    int fs = 15000;
     std::vector<float> tInt = {1.5,2};
     std::vector<float> weights = { 1 , 1 , 1 };
     
@@ -20,13 +20,12 @@ int main(int argc, char* argv[]) {
 
     //---------------------------Test supplying fnames and fs----------------------------
     wav2sig testsigs2(tests, fs);
-    
+    testsigs2.write();
     printf("\n\n\r");
 
     //---------------------------Test supplying fnames, fs, tInt--------------------------
     wav2sig testsigs3(tests, fs, tInt);
 
-    testsigs3.write();
     printf("\n\n\r");
     return 0;
 }

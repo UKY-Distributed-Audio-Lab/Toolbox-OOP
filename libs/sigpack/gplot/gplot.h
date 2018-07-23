@@ -686,6 +686,7 @@ namespace sp
                 std::ostringstream tmp_s;
                 tmp_s << "set terminal " << ttype;
                 std::string s = tmp_s.str();
+                term = s;
                 send2gp(s.c_str());
             }
 

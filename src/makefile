@@ -1,4 +1,4 @@
-FLAGS= -std=c++11 -I../include/
+FLAGS= -std=c++11 -I../include/ -I../libs/ -I../libs/sigpack/
 DEPS=main.o AudioFile.o wav2sig.o
 
 all: driver

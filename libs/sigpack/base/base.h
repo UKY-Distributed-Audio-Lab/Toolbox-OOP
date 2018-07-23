@@ -116,6 +116,22 @@ namespace sp
         }
         return P;
     }
+    /// @} // END math
+
+
+    ///
+    /// @defgroup data Data
+    /// \brief Data generation/manipulation ...
+    /// @{
+
+    /// \brief Generates a linear time vector with specified sample rate. Delta time=1/Fs.
+    /// @param N  Number of data points
+    /// @param Fs Sample rate
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    arma_inline arma::vec timevec( const int N, const double Fs )
+    {
+        return arma::linspace(0,N-1,N)/Fs;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     /// \brief 1D FFT shift.
@@ -174,13 +190,21 @@ namespace sp
         x = shift(x, -ceil(C / 2), 1);
         return x;
     }
-    /// @}
 
+    /// @} // END data
 
     ///
     /// @defgroup misc Misc
-    /// \brief Misc functions, such as error handling etc.
+    /// \brief Misc functions, error handling etc.
     /// @{
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    /// \brief SigPack version string
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // std::string sp_version(void)
+    // {
+    //     return std::to_string(SP_VERSION_MAJOR)+"."+std::to_string(SP_VERSION_MINOR)+"."+std::to_string(SP_VERSION_PATCH);
+    // }
 
     ///////////////////////////////////
     // err_handler("Error string")
@@ -200,7 +224,7 @@ namespace sp
     { \
         std::cout << "SigPack warning [" << __FILE__ << "@" << __LINE__ << "]: " << msg << std::endl;\
     }
-    /// @}
+    /// @} // END misc
 
 } // end namespace
 #endif

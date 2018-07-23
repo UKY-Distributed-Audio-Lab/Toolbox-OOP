@@ -18,11 +18,12 @@
 //  1.2.1   Claes Rolén     2017-03-13  Updated for Gnuplot 5.0, plot(..) changes to plot_add(..) plus plot_show()
 //  1.2.2   Claes Rolén     2017-07-13  Added EKF and UKF classes, Non class functions set to arma_inline.
 //  1.2.3   Claes Rolén     2017-08-08  Updated FIR design functions, support for highpass, bandpass and bandstop.
+//  1.2.4   Claes Rolén     2018-03-17  Updated resampling class, added goertzel and timevec functions.
 
 
 #define SP_VERSION_MAJOR 1
 #define SP_VERSION_MINOR 2
-#define SP_VERSION_PATCH 3
+#define SP_VERSION_PATCH 4
 
 
 #ifndef ARMA_INCLUDES

@@ -2,7 +2,7 @@
 //Purpose: opens wavfile, maipulates data for use in the Array Toolbox
 //Author: Grant Cox, University of Kentucky Distributed Audio Lab, grant.cox@uky.edu
 
-#include "../include/wav2sig.hpp"
+#include "wav2sig.hpp"
 
 //////////////////////////////////////////////////////////////
 //default destructor
@@ -100,25 +100,28 @@ uint8_t wav2sig::resample_signals() {
     for(uint8_t i = 0; i < num_files; i++) {
         //convert the fs ratio into a p / q rational used in resampling
         if (fs != channel_fs[i]) {
-            double fs_ratio = fs / channel_fs[i];
-            double integral = std::floor(fs_ratio);
-            double frac = fs_ratio - integral;
+            double fs_ratio      = fs / channel_fs[i];
+            double integral      = std::floor(fs_ratio);
+            double frac          = fs_ratio - integral;
             const long precision = 1000000000; // This is the accuracy.
 
             long gcd_ = gcd(round(frac * precision), precision);
 
             long denominator = precision / gcd_;
-            long numerator = round(frac * precision) / gcd_;
-            numerator += integral * denominator;
+            long numerator   = round(frac * precision) / gcd_;
+            numerator       += integral * denominator;
             
-            // having the numerator and denominator, the upsample and downsample functions can
-            // be called
-            Col<double> to_process = filedata.col(i); //upsample then downsample
-            to_process = sp::upsample(to_process,numerator);
-            to_process = sp::downsample(to_process,denominator);
-            resampled_sigs[i] = to_process;   //put into resampled vector
-            channel_fs[i] = fs;               //note new fs for each file
-            samples_per_channel[i] = to_process.size(); //update samps per channel
+            //having the numerator and he denominator, use the resampling class to resample with fir
+            //anti-aliasing at ratio p/q or numerator/denominator
+            Col<double> to_process = filedata.col(i);
+            Col<double> processed  = zeros<Col<double>>(to_process.n_rows * numerator / denominator);
+            
+            sp::resampling<double> sampler(numerator, denominator); //make resampler
+            sampler.upfirdown(to_process,processed);                //resample
+
+            resampled_sigs[i] = processed;             //put into resampled vector
+            channel_fs[i] = fs;                        //note new fs for each file
+            samples_per_channel[i] = processed.size(); //update samps per channel
         }
         else
             throw invalid_argument("You entered an fs that was equal to the original.");
@@ -126,6 +129,19 @@ uint8_t wav2sig::resample_signals() {
 
     resize_filedata(resampled_sigs); //write new data out
     return 0;
+}
+
+//greatest common denominator
+long wav2sig::gcd(long a, long b) {
+    if (a == 0)
+        return b;
+    else if (b == 0)
+        return a;
+
+    if (a < b)
+        return gcd(a, b % a);
+    else
+        return gcd(b, a % b);
 }
 
 //////////////////////////////////////////////////////////////
@@ -156,19 +172,6 @@ uint8_t wav2sig::trimFile() {
 uint8_t wav2sig::multiplyWeight(vec in, std::vector<float> & weights) {
     return 0; //TODO
 }//TODO
-
-//greatest common denominator
-long wav2sig::gcd(long a, long b) {
-    if (a == 0)
-        return b;
-    else if (b == 0)
-        return a;
-
-    if (a < b)
-        return gcd(a, b % a);
-    else
-        return gcd(b, a % b);
-}
 
 void wav2sig::resize_filedata(std::vector<Col<double>> & newData) {
     //now need to recreate filedata matrix to match resampled sigs
