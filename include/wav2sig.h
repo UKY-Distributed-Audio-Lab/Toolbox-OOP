@@ -1,10 +1,6 @@
 #ifndef WAV2SIG_H
 #define WAV2SIG_H
 
-// an error in sigpack forced me to define this. May be a problem on my end.
-// windows users beware! comment out for your code. Will automate later TODO
-#define unix
-
 #include <string.h>
 #include <vector>
 #include <stdio.h>

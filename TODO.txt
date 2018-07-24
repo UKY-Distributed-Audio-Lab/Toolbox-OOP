@@ -1,0 +1,16 @@
+-In order to implement the cocktail party example, the following need to be implemented:
+
+    Required files from Array Toolbox:
+    1) cocktailp.m
+    2) delayt.m         
+    3) imagesim.m 
+    4) regmicsplane.m 
+    5) roomimpres.m     
+    6) simarraysig.m    
+    7) simarraysigim.m  
+    8) wav2sig.m             --done
+    9) SpeedOfSound.m
+    10) atmAtten.m
+
+-determine how I want to organize the classes in the oop toolbox. 
+    -likely one master .h which includes all child .h's necessary

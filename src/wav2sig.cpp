@@ -2,7 +2,7 @@
 //Purpose: opens wavfile, maipulates data for use in the Array Toolbox
 //Author: Grant Cox, University of Kentucky Distributed Audio Lab, grant.cox@uky.edu
 
-#include "wav2sig.hpp"
+#include "wav2sig.h"
 
 //////////////////////////////////////////////////////////////
 //default destructor

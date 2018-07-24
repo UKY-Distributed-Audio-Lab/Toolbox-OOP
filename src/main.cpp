@@ -1,6 +1,5 @@
 #include <string>
-#include "wav2sig.hpp"
-
+#include "ArrayToolbox.h"
 
 int main(int argc, char* argv[]) {
     std::vector<std::string> tests =
