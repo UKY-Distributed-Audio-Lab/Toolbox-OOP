@@ -6,61 +6,102 @@
 
 //////////////////////////////////////////////////////////////
 //default destructor
-wav2sig::wav2sig() {
-    fs = 0;
-}
+wav2sig::wav2sig() {}
 
 //////////////////////////////////////////////////////////////
 
 
-wav2sig::wav2sig(std::vector<std::string> paths) {
-    fs = 0;
-    num_files = paths.size();
-    fnames = paths;
-
+wav2sig::wav2sig(std::vector<std::string> fnames_) {
+    num_files = fnames_.size();
+    fnames = fnames_;
     read();
 }
 
 //////////////////////////////////////////////////////////////
 
 
-wav2sig::wav2sig(std::vector<std::string> paths, int in_fs) {
-    fs = in_fs;
-    num_files = paths.size();
-    fnames = paths;
+wav2sig::wav2sig(std::vector<std::string> fnames_, int fs_) {
+    fs = fs_;
+    num_files = fnames_.size();
+    fnames = fnames_;
     read();
     resample_signals();
 }
 
 //////////////////////////////////////////////////////////////
 
-wav2sig::wav2sig(std::vector<std::string> paths, int in_fs, 
-                 std::vector<float> tInt_in) {
-    fs = in_fs;
-    num_files = paths.size();
-    fnames = paths;
-    tInt = tInt_in;
-
+wav2sig::wav2sig(std::vector<std::string> fnames_, std::vector<float> tInt_) {
+    num_files = fnames_.size();
+    fnames = fnames_;
+    tInt = tInt_;
     read();
-    resample_signals();
     trimFile();
 }
 
-wav2sig::wav2sig(std::vector<std::string> paths,
-                int in_fs,
-                std::vector<float> in_tInt,
-                std::vector<float> weights) {
+wav2sig::wav2sig(std::vector<std::string> fnames_, std::vector<double> weights_) {
+    num_files = fnames_.size();
+    fnames = fnames_;
+    weights = weights_;
+    read();
+    multiplyWeight();
+}
 
-    fs = in_fs;
-    tInt = in_tInt;
-    num_files = paths.size();
-    fnames = paths;
+wav2sig::wav2sig(std::vector<std::string> fnames_, 
+                 int fs_, 
+                 std::vector<float> tInt_) {
+    
+    fs = fs_;
+    num_files = fnames_.size();
+    fnames = fnames_;
+    tInt = tInt_;
+
+    read();
+    trimFile();
+    resample_signals();
+}
+
+wav2sig::wav2sig(std::vector<std::string> fnames_, 
+                 int fs_, 
+                 std::vector<double> weights_) {
+    fs = fs_;
+    num_files = fnames_.size();
+    fnames = fnames_;
+    weights = weights_;
+
+    read();
+    resample_signals();
+    multiplyWeight();
+}
+
+wav2sig::wav2sig(std::vector<std::string> fnames_,
+        std::vector<float> tInt_,
+        std::vector<double> weights_) {
+
+    num_files = fnames_.size();
+    fnames = fnames_;
+    tInt = tInt_;
+    weights = weights_;
+
+    read();
+    trimFile();
+    multiplyWeight();
+}
+
+wav2sig::wav2sig(std::vector<std::string> fnames_,
+                int fs_,
+                std::vector<float> tInt_,
+                std::vector<double> weights_) {
+
+    fs = fs_;
+    tInt = tInt_;
+    num_files = fnames_.size();
+    fnames = fnames_;
+    weights = weights_;
     
     read();
-    
-
-    //filedata[i] = trimFile(filedata[i]);
-    //filedata[i] = multiplyWeight(filedata[i],weights);
+    trimFile();
+    resample_signals();
+    multiplyWeight();
 }
 
 //////////////////////////////////////////////////////////////
@@ -73,8 +114,8 @@ void wav2sig::read() {
     for (std::vector<std::string>::iterator i = fnames.begin(); i != fnames.end(); ++i) {
         fdata[count].load(*i);   //load the audio samples into the vector index
 
-        cout << "Loaded " << *i << ", summary:\n\r";
-        //fdata[count].printSummary();
+        cout << "Loaded " << *i << endl;
+        fdata[count].printSummary();
 
         samples_per_channel.push_back(fdata[count].getNumSamplesPerChannel());
         channel_fs.push_back(fdata[count].getSampleRate());
@@ -169,9 +210,18 @@ uint8_t wav2sig::trimFile() {
 //////////////////////////////////////////////////////////////
 
 
-uint8_t wav2sig::multiplyWeight(vec in, std::vector<float> & weights) {
-    return 0; //TODO
-}//TODO
+uint8_t wav2sig::multiplyWeight() {
+    mat dev = stddev(abs(filedata));
+    double normme = 0.0;
+
+    for(uint8_t i = 0; i < num_files; i++)      normme += dev(0,i);
+    normme /= num_files;
+
+    filedata /= 10 * normme;
+
+    for(uint8_t i = 0; i < num_files; i++)      filedata.col(i) *= weights[i];
+    return 0;
+}
 
 void wav2sig::resize_filedata(std::vector<Col<double>> & newData) {
     //now need to recreate filedata matrix to match resampled sigs
@@ -190,7 +240,7 @@ void wav2sig::resize_filedata(std::vector<Col<double>> & newData) {
 
 void wav2sig::write() {
     //iterate over each file
-    for(uint8_t i = 0; i < fnames.size(); i++) {
+    for(uint8_t i = 0; i < num_files; i++) {
         //initialize audiofile with one channel, right number of samples, fs
         AudioFile<double> fileOut;
         fileOut.setAudioBufferSize(1, filedata.col(i).n_rows);
