@@ -20,9 +20,9 @@
 //   where 0 denotes the original starting point for S.
 //   If S is a matrix, the program will assume each column is a signal and
 //   the number of elements in D must be equal to the number of columns.
-mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_samples) {
-    if(delay_samples.size() != sigin.n_cols)
-        throw invalid_argument("Size of delay_samples does not match size of sigin.\n\r");
+mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
+    if(delay_seconds.size() != sigin.n_cols)
+        throw invalid_argument("Size of delay_seconds does not match size of sigin.\n\r");
     if(fs <= 0)
         throw invalid_argument("Cannot have fs <= 0.\n\r");
 
@@ -34,14 +34,24 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_samples) {
     
     
     //compute number of samples to delay based on delay_samples
-    std::vector<uint32_t> delay_samples(delay_samples.size());
+    std::vector<int> delay_samples(delay_seconds.size());
     for(uint8_t i = 0; i < delay_samples.size(); i++)   
-        delay_samples[i] = fs * delay_samples[i];
+        delay_samples[i] = fs * delay_seconds[i];
 
     //find signal length of output matrix
     uint32_t signal_length = find_max_vector_element(delay_samples) + sigin.n_rows;
 
-    mat dummy_integer_shift = zeros(signal_length + FILTER_ORDER, 1);
+    mat dummy_integer_shift = zeros(signal_length + FILTER_ORDER, sigin.n_cols);
     mat              output = zeros(signal_length, sigin.n_cols);
     
+    //Loop through each row of signal matrix and apply delay
+    for(uint8_t i = 0; i < sigin.n_cols; i++) {
+        printf("\ndelay_samples[i] = %d\n\rfs = %d\n\r",delay_samples[i],fs);
+
+        uint32_t min1 = std::min((int)signal_length, (int)(sigin.n_rows + delay_samples[i] - 1));
+        uint32_t min2 = std::min((int)(signal_length - delay_samples[i] + 1), (int)(sigin.n_rows - 1));
+        
+        dummy_integer_shift.col(i).rows(delay_samples[i], min1) = sigin.col(i).rows(0, min2);
+    }
+    return dummy_integer_shift;
 }

@@ -32,6 +32,6 @@ mat resize_and_zero_pad(std::vector<Col<double>> & newData) {
 //return the max element of some vector of type T
 template<typename T>
 T find_max_vector_element(std::vector<T> in) {
-    std::vector<T>::iterator it = std::max_element( in.begin(), in.end() );
+    typename vector<T>::iterator it = std::max_element( in.begin(), in.end() );
     return *it;
 }
