@@ -29,6 +29,14 @@ mat resize_and_zero_pad(std::vector<Col<double>> & newData) {
     for(int i = 0; i < cols; i++)  newMatrix.col(i) = newData[i];
 }
 
+vec fill_vec_between_limits(int l1, int l2) {
+    uint32_t size = std::abs(l2-l1) + 1;
+    vec output(size);
+    for(uint32_t i = 0; i < size; i++)
+        output(i) = l1++;
+    return output;
+}
+
 //return the max element of some vector of type T
 template<typename T>
 T find_max_vector_element(std::vector<T> in) {

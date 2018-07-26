@@ -1,4 +1,4 @@
-FLAGS= -std=c++11 -I../include/ -I../libs/ -I../libs/sigpack/ $(CUSTOMDEFINES)
+FLAGS= -std=c++11 -I../include/ -I../libs/ -I../libs/sigpack/ $(CUSTOMDEFINES) -lblas -llapack -lfftw3 -m64
 DEPS=main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o
 CUSTOMDEFINES = -D unix
 

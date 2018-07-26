@@ -27,11 +27,9 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
         throw invalid_argument("Cannot have fs <= 0.\n\r");
 
     
-    uint8_t order_ceiling = ceil(FILTER_ORDER / 2);
-    std::vector<int8_t> sinc_grid;
-    for(int8_t i = -order_ceiling + 1; i <= order_ceiling; i++)     
-        sinc_grid.push_back(i);
-    
+    int order_ceiling = ceil(FILTER_ORDER / 2);
+    vec sinc_grid = fill_vec_between_limits(-order_ceiling + 1, order_ceiling);
+    std::cout << "sinc grid" << '\n'; sinc_grid.print(); std::cout << '\n';
     
     //compute number of samples to delay based on delay_samples
     std::vector<int> delay_samples(delay_seconds.size());
@@ -46,12 +44,35 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
     
     //Loop through each row of signal matrix and apply delay
     for(uint8_t i = 0; i < sigin.n_cols; i++) {
-        printf("\ndelay_samples[i] = %d\n\rfs = %d\n\r",delay_samples[i],fs);
 
         uint32_t min1 = std::min((int)signal_length, (int)(sigin.n_rows + delay_samples[i] - 1));
         uint32_t min2 = std::min((int)(signal_length - delay_samples[i] + 1), (int)(sigin.n_rows - 1));
         
         dummy_integer_shift.col(i).rows(delay_samples[i], min1) = sigin.col(i).rows(0, min2);
+
+        //deal with fractional part of delay (remainder from the floor function)
+        double fractional_delay = delay_seconds[i] * fs - (delay_samples[i]);
+        printf("fractional delay %f\n", fractional_delay);
+        
+        vec fractional_sinc_grid(sinc_grid.n_cols);
+        fractional_sinc_grid = sinc_grid - fractional_delay;
+        printf("fractional_sinc_grid \n"); fractional_sinc_grid.print(); printf("\n");
+        
+        //Cosine squared Windowed sinc
+        //h = ( cos(0.5*pi*(t) / (max(abs(t))+1) ).^2 ).*sinc(t);
+        vec cos2_windowed_sinc = cos(M_PI_2*fractional_sinc_grid / (max(abs(fractional_sinc_grid))));
+        std::cout << '\n'; cos2_windowed_sinc.print();std::cout << '\n';
+        cos2_windowed_sinc = cos2_windowed_sinc % cos2_windowed_sinc;
+        cos2_windowed_sinc.print(); std::cout << '\n';
+        cos2_windowed_sinc = cos2_windowed_sinc % sp::sinc(fractional_sinc_grid);
+        cos2_windowed_sinc.print(); std::cout << '\n';
+
+        printf("\n\rmaking filter...");
+        sp::FIR_filt<double,double,double> delay_FIR;
+        delay_FIR.set_coeffs(cos2_windowed_sinc);
+        printf("filtering...");
+        delay_FIR.filter(dummy_integer_shift);
+        printf("done\n\r");
     }
     return dummy_integer_shift;
 }
