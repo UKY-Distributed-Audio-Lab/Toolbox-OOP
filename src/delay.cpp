@@ -27,21 +27,20 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
         throw invalid_argument("Cannot have fs <= 0.\n\r");
 
     
-    int order_ceiling = ceil(FILTER_ORDER / 2);
-    vec sinc_grid = fill_vec_between_limits(-order_ceiling + 1, order_ceiling);
-    std::cout << "sinc grid" << '\n'; sinc_grid.print(); std::cout << '\n';
+    int order_ceiling = ceil(FILTER_ORDER / 2);                                     //"ordh"
+    vec sinc_grid = fill_vec_between_limits(-order_ceiling + 1, order_ceiling);     //"sp"
     
     //compute number of samples to delay based on delay_samples
-    std::vector<int> delay_samples(delay_seconds.size());
+    std::vector<int> delay_samples(delay_seconds.size());                           //"nd"
     for(uint8_t i = 0; i < delay_samples.size(); i++)   
         delay_samples[i] = fs * delay_seconds[i];
 
     //find signal length of output matrix
-    uint32_t signal_length = find_max_vector_element(delay_samples) + sigin.n_rows;
+    uint32_t signal_length = find_max_vector_element(delay_samples) + sigin.n_rows; //"slen"
 
-    mat dummy_integer_shift = zeros(signal_length + FILTER_ORDER, sigin.n_cols);
-    mat              output = zeros(signal_length, sigin.n_cols);
-    
+    mat dummy_integer_shift = zeros(signal_length + FILTER_ORDER, sigin.n_cols);    //"sdd"
+    mat              output = zeros(signal_length, sigin.n_cols);                   //"sd"
+
     //Loop through each row of signal matrix and apply delay
     for(uint8_t i = 0; i < sigin.n_cols; i++) {
 
@@ -51,28 +50,24 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
         dummy_integer_shift.col(i).rows(delay_samples[i], min1) = sigin.col(i).rows(0, min2);
 
         //deal with fractional part of delay (remainder from the floor function)
-        double fractional_delay = delay_seconds[i] * fs - (delay_samples[i]);
-        printf("fractional delay %f\n", fractional_delay);
+        double fractional_delay = delay_seconds[i] * fs - (delay_samples[i]);       //"fd"
         
-        vec fractional_sinc_grid(sinc_grid.n_cols);
-        fractional_sinc_grid = sinc_grid - fractional_delay;
-        printf("fractional_sinc_grid \n"); fractional_sinc_grid.print(); printf("\n");
+        vec fractional_sinc_grid = zeros(sinc_grid.n_cols);                                 
+        fractional_sinc_grid = sinc_grid - fractional_delay;                        //"t"
         
         //Cosine squared Windowed sinc
         //h = ( cos(0.5*pi*(t) / (max(abs(t))+1) ).^2 ).*sinc(t);
-        vec cos2_windowed_sinc = cos(M_PI_2*fractional_sinc_grid / (max(abs(fractional_sinc_grid))));
-        std::cout << '\n'; cos2_windowed_sinc.print();std::cout << '\n';
+        vec cos2_windowed_sinc = cos((M_PI_2*fractional_sinc_grid) / (max(abs(fractional_sinc_grid))));
+        
         cos2_windowed_sinc = cos2_windowed_sinc % cos2_windowed_sinc;
-        cos2_windowed_sinc.print(); std::cout << '\n';
-        cos2_windowed_sinc = cos2_windowed_sinc % sp::sinc(fractional_sinc_grid);
-        cos2_windowed_sinc.print(); std::cout << '\n';
 
-        printf("\n\rmaking filter...");
+        cos2_windowed_sinc = cos2_windowed_sinc % sp::sinc(fractional_sinc_grid);
+
         sp::FIR_filt<double,double,double> delay_FIR;
         delay_FIR.set_coeffs(cos2_windowed_sinc);
-        printf("filtering...");
         delay_FIR.filter(dummy_integer_shift);
-        printf("done\n\r");
+        
+        output.col(i) = dummy_integer_shift.col(i).rows(order_ceiling,signal_length + order_ceiling - 1);
     }
-    return dummy_integer_shift;
+    return output;
 }
