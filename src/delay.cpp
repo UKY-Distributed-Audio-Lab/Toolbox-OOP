@@ -65,9 +65,10 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
 
         sp::FIR_filt<double,double,double> delay_FIR;
         delay_FIR.set_coeffs(cos2_windowed_sinc);
-        delay_FIR.filter(dummy_integer_shift);
-        
-        output.col(i) = dummy_integer_shift.col(i).rows(order_ceiling,signal_length + order_ceiling - 1);
+        Col<double> filtered = dummy_integer_shift.col(i);
+        filtered = delay_FIR.filter(filtered);
+
+        output.col(i) = filtered.rows(FILTER_ORDER,filtered.n_rows - 1);
     }
     return output;
 }
