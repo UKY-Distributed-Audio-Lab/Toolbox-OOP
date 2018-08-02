@@ -48,6 +48,9 @@ public:
 
     void read();
     void write();
+    std::vector<std::string> get_fnames() { return fnames; };
+    uint8_t get_num_files() {return num_files; };
+    std::vector<int> get_channel_fs() {return channel_fs; };
 };
 
 #endif

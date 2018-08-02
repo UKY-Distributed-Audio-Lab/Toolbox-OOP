@@ -41,10 +41,12 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
     mat dummy_integer_shift = zeros(signal_length + FILTER_ORDER, sigin.n_cols);    //"sdd"
     mat              output = zeros(signal_length, sigin.n_cols);                   //"sd"
 
-    //Loop through each row of signal matrix and apply delay
+    //Loop through each column of signal matrix and apply delay
     for(uint8_t i = 0; i < sigin.n_cols; i++) {
-
+        
+        //determine which is less: the current signal length or the new signal length
         uint32_t min1 = std::min((int)signal_length, (int)(sigin.n_rows + delay_samples[i] - 1));
+        //determine which is less: the current length minus the number of samples to be delayed, or the size of the input signal
         uint32_t min2 = std::min((int)(signal_length - delay_samples[i] + 1), (int)(sigin.n_rows - 1));
         
         dummy_integer_shift.col(i).rows(delay_samples[i], min1) = sigin.col(i).rows(0, min2);
@@ -67,6 +69,7 @@ mat delayt(mat sigin, uint32_t fs, std::vector<float> delay_seconds) {
         delay_FIR.set_coeffs(cos2_windowed_sinc);
         Col<double> filtered = dummy_integer_shift.col(i);
         filtered = delay_FIR.filter(filtered);
+        
 
         output.col(i) = filtered.rows(FILTER_ORDER,filtered.n_rows - 1);
     }
