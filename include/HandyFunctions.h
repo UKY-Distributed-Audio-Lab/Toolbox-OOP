@@ -13,6 +13,9 @@ mat  resize_and_zero_pad(std::vector<Col<double>> & newData);
 vec  fill_vec_between_limits(int l1, int l2);
 
 template<typename T>
-T find_max_vector_element(std::vector<T> in);
+T find_max_vector_element(std::vector<T> in) {
+    typename vector<T>::iterator it = std::max_element( in.begin(), in.end() );
+    return *it;
+}
 
 #endif

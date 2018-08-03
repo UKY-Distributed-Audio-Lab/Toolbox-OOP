@@ -1,29 +1,16 @@
-FLAGS= -std=c++11 -I../include/ -I../libs/ -I../libs/sigpack/ $(CUSTOMDEFINES) -lblas -llapack -lfftw3 -m64
-DEPS=main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o speedofsound.o
+INCLUDES = -I../include/ -I../libs/ -I../libs/sigpack/
 CUSTOMDEFINES = -D unix
+FLAGS= -O2 -std=c++11 -lblas -llapack -lfftw3 -m64 $(CUSTOMDEFINES)
 
-all: driver
+OBJDIR = obj
+OBJS = main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o speedofsound.o
 
-driver:  $(DEPS)
-	g++ $(FLAGS) -o $@ main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o speedofsound.o
+all: $(OBJS)
+	@echo "Building files..."
+	g++ $(FLAGS) $(INCLUDES) $(OBJS) -o driver
 
-main.o: main.cpp
-	g++ $(FLAGS) -c -g $^
-
-AudioFile.o: AudioFile.cpp
-	g++ $(FLAGS) -c -g $^
-
-wav2sig.o: wav2sig.cpp
-	g++ $(FLAGS) -c -g $^
-
-delay.o: delay.cpp
-	g++ $(FLAGS) -c -g $^
-
-HandyFunctions.o: HandyFunctions.cpp
-	g++ $(FLAGS) -c -g $^
-
-speedofsound.o: speedofsound.cpp
-	g++ $(FLAGS) -c -g $^
+%.o: %.cpp
+	g++ $(FLAGS) $(INCLUDES) -c $*.cpp
 
 .PHONY: clean
 

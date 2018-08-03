@@ -36,10 +36,3 @@ vec fill_vec_between_limits(int l1, int l2) {
         output(i) = l1++;
     return output;
 }
-
-//return the max element of some vector of type T
-template<typename T>
-T find_max_vector_element(std::vector<T> in) {
-    typename vector<T>::iterator it = std::max_element( in.begin(), in.end() );
-    return *it;
-}
