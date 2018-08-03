@@ -1,11 +1,11 @@
 FLAGS= -std=c++11 -I../include/ -I../libs/ -I../libs/sigpack/ $(CUSTOMDEFINES) -lblas -llapack -lfftw3 -m64
-DEPS=main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o
+DEPS=main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o speedofsound.o
 CUSTOMDEFINES = -D unix
 
 all: driver
 
 driver:  $(DEPS)
-	g++ $(FLAGS) -o $@ main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o
+	g++ $(FLAGS) -o $@ main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o speedofsound.o
 
 main.o: main.cpp
 	g++ $(FLAGS) -c -g $^
@@ -20,6 +20,9 @@ delay.o: delay.cpp
 	g++ $(FLAGS) -c -g $^
 
 HandyFunctions.o: HandyFunctions.cpp
+	g++ $(FLAGS) -c -g $^
+
+speedofsound.o: speedofsound.cpp
 	g++ $(FLAGS) -c -g $^
 
 .PHONY: clean

@@ -9,7 +9,7 @@
     6) simarraysig.m    
     7) simarraysigim.m  
     8) wav2sig.m             --done
-    9) SpeedOfSound.m
+    9) SpeedOfSound.m        --done
     10) atmAtten.m
 
 -determine how I want to organize the classes in the oop toolbox. 
