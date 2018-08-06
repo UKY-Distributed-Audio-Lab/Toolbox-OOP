@@ -162,7 +162,7 @@ gmm_full<eT>::set_params(const Base<eT,T1>& in_means_expr, const BaseCube<eT,T2>
   
   const eT s = accu(in_hefts);
   
-  arma_debug_check( ((s < (eT(1) - Datum<eT>::eps)) || (s > (eT(1) + Datum<eT>::eps))), "gmm_full::set_params(): sum of given hefts is not 1" );
+  arma_debug_check( ((s < (eT(1) - eT(0.001))) || (s > (eT(1) + eT(0.001)))), "gmm_full::set_params(): sum of given hefts is not 1" );
   
   access::rw(means) = in_means;
   access::rw(fcovs) = in_fcovs;
@@ -238,7 +238,7 @@ gmm_full<eT>::set_hefts(const Base<eT,T1>& in_hefts_expr)
   
   const eT s = accu(in_hefts);
   
-  arma_debug_check( ((s < (eT(1) - Datum<eT>::eps)) || (s > (eT(1) + Datum<eT>::eps))), "gmm_full::set_hefts(): sum of given hefts is not 1" );
+  arma_debug_check( ((s < (eT(1) - eT(0.001))) || (s > (eT(1) + eT(0.001)))), "gmm_full::set_hefts(): sum of given hefts is not 1" );
   
   // make sure all hefts are positive and non-zero
   
@@ -1014,6 +1014,8 @@ gmm_full<eT>::init_constants(const bool calc_chol)
       }
     else
       {
+      // last resort: treat the covariance matrix as diagonal
+      
       inv_fcov.zeros();
       
       log_det_val = eT(0);
@@ -1056,7 +1058,7 @@ gmm_full<eT>::init_constants(const bool calc_chol)
       
       const uword chol_layout = 1;  // indicates "lower"
       
-      const bool chol_ok = auxlib::chol(tmp_chol, fcov, chol_layout);
+      const bool chol_ok = op_chol::apply_direct(tmp_chol, fcov, chol_layout);
       
       if(chol_ok)
         {
@@ -1064,6 +1066,8 @@ gmm_full<eT>::init_constants(const bool calc_chol)
         }
       else
         {
+        // last resort: treat the covariance matrix as diagonal
+        
         chol_fcov.zeros();
         
         for(uword d=0; d < N_dims; ++d)

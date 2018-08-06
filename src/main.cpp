@@ -3,9 +3,17 @@
 
 
 int main(int argc, char* argv[]) {
-    vec freqs = { 10, 100, 10e3, 10e4, 10e5, 10e6 };
-    vec result = atmAtten(.2, 10, 20, 10, freqs);
-    //printf("result: %f\n", result);
-    result.print(); 
+    mat micplane = { {0, 0, 2.1},
+                     {0, 3.6, 2.1},
+                     {3.6, 3.6, 2.1}};
+    micplane.print();
+    micplane = micplane.t(); //transpose
+    micplane.print();
+
+    double micspacing = 1.3;
+    bool rectangle = true;
+    
+    mat plane = regmicsplane(micplane, micspacing, rectangle);
+    plane.print();
     return 0;
 }

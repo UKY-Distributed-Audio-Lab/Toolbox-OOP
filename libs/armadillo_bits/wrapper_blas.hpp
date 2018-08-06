@@ -187,8 +187,8 @@ namespace blas
       blas_int n   = blas_int(n_elem);
       blas_int inc = 1;
       
-      typedef double T;
-      return eT( arma_fortran(arma_ddot)(&n, (const T*)x, &inc, (const T*)y, &inc) );
+      //typedef double T;
+      //return eT( arma_fortran(arma_ddot)(&n, (const T*)x, &inc, (const T*)y, &inc) );
       }
     else
     if( (is_supported_complex_float<eT>::value) || (is_supported_complex_double<eT>::value) )

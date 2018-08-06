@@ -6,5 +6,6 @@
 #include "HandyFunctions.h"
 #include "speedofsound.h"
 #include "atmAtten.h"
+#include "regmics.h"
 
 #endif

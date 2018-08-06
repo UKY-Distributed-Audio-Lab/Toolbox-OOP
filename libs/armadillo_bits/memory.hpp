@@ -56,6 +56,8 @@ arma_malloc
 eT*
 memory::acquire(const uword n_elem)
   {
+  if(n_elem == 0)  { return NULL; }
+  
   arma_debug_check
     (
     ( size_t(n_elem) > (std::numeric_limits<size_t>::max() / sizeof(eT)) ),
@@ -70,22 +72,29 @@ memory::acquire(const uword n_elem)
     }
   #elif defined(ARMA_USE_MKL_ALLOC)
     {
-    out_memptr = (eT *) mkl_malloc( sizeof(eT)*n_elem, 128 );
+    out_memptr = (eT *) mkl_malloc( sizeof(eT)*n_elem, 32 );
     }
   #elif defined(ARMA_HAVE_POSIX_MEMALIGN)
     {
-    eT* memptr;
+    eT* memptr = NULL;
     
-    const size_t alignment = 16;  // change the 16 to 64 if you wish to align to the cache line
+    const size_t n_bytes   = sizeof(eT)*size_t(n_elem);
+    const size_t alignment = (n_bytes >= size_t(1024)) ? size_t(32) : size_t(16);
     
-    int status = posix_memalign((void **)&memptr, ( (alignment >= sizeof(void*)) ? alignment : sizeof(void*) ), sizeof(eT)*n_elem);
+    // TODO: investigate apparent memory leak when using alignment >= 64 (as shown on Fedora 28, glibc 2.27)
+    int status = posix_memalign((void **)&memptr, ( (alignment >= sizeof(void*)) ? alignment : sizeof(void*) ), n_bytes);
     
     out_memptr = (status == 0) ? memptr : NULL;
     }
   #elif defined(_MSC_VER)
     {
     //out_memptr = (eT *) malloc(sizeof(eT)*n_elem);
-    out_memptr = (eT *) _aligned_malloc( sizeof(eT)*n_elem, 16 );  // lives in malloc.h
+    //out_memptr = (eT *) _aligned_malloc( sizeof(eT)*n_elem, 16 );  // lives in malloc.h
+    
+    const size_t n_bytes   = sizeof(eT)*size_t(n_elem);
+    const size_t alignment = (n_bytes >= size_t(1024)) ? size_t(32) : size_t(16);
+    
+    out_memptr = (eT *) _aligned_malloc( n_bytes, alignment );
     }
   #else
     {
@@ -96,10 +105,7 @@ memory::acquire(const uword n_elem)
   
   // TODO: for mingw, use __mingw_aligned_malloc
   
-  if(n_elem > 0)
-    {
-    arma_check_bad_alloc( (out_memptr == NULL), "arma::memory::acquire(): out of memory" );
-    }
+  arma_check_bad_alloc( (out_memptr == NULL), "arma::memory::acquire(): out of memory" );
   
   return out_memptr;
   }
@@ -125,6 +131,8 @@ arma_inline
 void
 memory::release(eT* mem)
   {
+  if(mem == NULL)  { return; }
+  
   #if   defined(ARMA_USE_TBB_ALLOC)
     {
     scalable_free( (void *)(mem) );
