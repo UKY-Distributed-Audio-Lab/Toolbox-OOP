@@ -10,7 +10,7 @@
     7) simarraysigim.m  
     8) wav2sig.m             --done
     9) SpeedOfSound.m        --done
-    10) atmAtten.m
+    10) atmAtten.m           --done
 
 -determine how I want to organize the classes in the oop toolbox. 
     -likely one master .h which includes all child .h's necessary
