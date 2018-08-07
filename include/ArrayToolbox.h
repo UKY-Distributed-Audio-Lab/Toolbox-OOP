@@ -7,5 +7,6 @@
 #include "speedofsound.h"
 #include "atmAtten.h"
 #include "regmics.h"
+#include "roomimpres.h"
 
 #endif

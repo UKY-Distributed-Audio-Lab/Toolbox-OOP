@@ -4,7 +4,7 @@
     1) cocktailp.m
     2) delayt.m              --done         
     3) imagesim.m 
-    4) regmicsplane.m 
+    4) regmicsplane.m        --done
     5) roomimpres.m     
     6) simarraysig.m    
     7) simarraysigim.m  

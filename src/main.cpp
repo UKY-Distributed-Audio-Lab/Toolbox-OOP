@@ -3,15 +3,8 @@
 
 
 int main(int argc, char* argv[]) {
-    mat micplane = { {0, 0, 2.1},
-                     {0, 3.6, 2.1},
-                     {3.6, 3.6, 2.1}};
-    micplane = micplane.t(); //transpose
-
-    double micspacing = 1.3;
-    bool rectangle = false;
-    
-    mat plane = regmicsplane(micplane, micspacing, rectangle);
-    plane.print();
-    return 0;
+    vec delays = { 1, 1, 1 }, scls = {.4, .3, .2};
+    int fs = 44100;
+    double speedofsound = 350;
+    impres myimpres = roomimpres(delays, scls, speedofsound, fs);
 }
