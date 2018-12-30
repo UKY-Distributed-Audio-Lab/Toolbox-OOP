@@ -7,7 +7,7 @@ OBJS = main.o AudioFile.o wav2sig.o delay.o HandyFunctions.o speedofsound.o atmA
 
 all: $(OBJS)
 	@echo "Building files..."
-	g++ $(FLAGS) $(INCLUDES) $(OBJS) -o driver
+	g++ $(FLAGS) $(INCLUDES) $(OBJS) -o driver.out
 
 %.o: %.cpp
 	g++ $(FLAGS) $(INCLUDES) -c $*.cpp
