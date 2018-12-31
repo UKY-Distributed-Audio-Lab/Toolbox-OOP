@@ -3,8 +3,12 @@
 
 
 int main(int argc, char* argv[]) {
-    vec delays = { 1, 1, 1 }, scls = {.4, .3, .2};
-    int fs = 44100;
-    double speedofsound = 350;
-    impres myimpres = roomimpres(delays, scls, speedofsound, fs);
+    vec freq = {-8*M_PI/9, -6*M_PI/9, -4*M_PI/9, -2*M_PI/9, 0, 2*M_PI/9, 4*M_PI/9, 6*M_PI/9, 8*M_PI/9}, 
+        mag = {0, 0, 0, 1, 1, 1, 0, 0, 0}, 
+        h;
+    uint8_t order = 9;
+
+    h = fir2(order, freq, mag);
+    printf("\nh:\n");
+    h.print();
 }

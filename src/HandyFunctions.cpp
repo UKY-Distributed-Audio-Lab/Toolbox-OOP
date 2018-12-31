@@ -11,6 +11,8 @@ long gcd(long a, long b) {
     else
         return gcd(b, a % b);
 }
+
+
 mat resize_and_zero_pad(std::vector<Col<double>> & newData) {
     uint8_t cols = newData.size();
     
@@ -27,6 +29,21 @@ mat resize_and_zero_pad(std::vector<Col<double>> & newData) {
     
     //put the data back
     for(int i = 0; i < cols; i++)  newMatrix.col(i) = newData[i];
+}
+
+//frequency sampling fir design
+vec fir2(int n_order, vec freq, vec mag) {
+    int M = (n_order - 1) / 2;
+    vec pos_coeffs(M+1); //coefficiencts from 0 to M
+    vec h;
+
+    for(uint16_t n = 0; n < M; n++) {
+        int tmp_sum = 0;
+        for(uint16_t k = 1; k < M; k++) {   tmp_sum += mag(k) * cos(n*freq(k));     }
+        pos_coeffs(n) = (1/(2*M+1)) * (mag(0) + 2*tmp_sum);
+    }
+    printf("\npos_coeffs:\n"); pos_coeffs.print();
+    return h;
 }
 
 vec fill_vec_between_limits(int l1, int l2) {
