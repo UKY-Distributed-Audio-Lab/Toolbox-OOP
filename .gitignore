@@ -35,8 +35,6 @@
 .vscode
 
 #cmake
-CMakeLists.txt.user
-CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
